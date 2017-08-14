@@ -1,0 +1,8 @@
+{
+	"Changelist" : 0,
+	"BuildId" : "cd35bc1c-a9f0-4e9f-a87b-0eed7db41b19",
+	"Modules" : 
+	{
+		"UnzipToolPlugin" : "UE4Editor-UnzipToolPlugin.dll"
+	}
+}

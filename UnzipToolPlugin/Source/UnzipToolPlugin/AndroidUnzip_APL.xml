@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AndroidUnzip plugin additions-->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+
+  <!-- optional additions to the GameActivity imports in GameActivity.java -->
+  <gameActivityImportAdditions>
+    <insert>
+      import java.io.BufferedInputStream;
+      import java.io.BufferedOutputStream;
+      import java.io.BufferedWriter;
+      import java.io.File;
+      import java.io.FileOutputStream;
+      import java.io.FileWriter;
+      import java.io.IOException;
+      import java.io.InputStream;
+      import java.io.OutputStream;
+      import java.io.RandomAccessFile;
+      import java.util.Enumeration;
+      import java.util.zip.ZipEntry;
+      import java.util.zip.ZipFile;
+    </insert>
+  </gameActivityImportAdditions>
+
+
+
+  <!-- optional additions to the GameActivity class in GameActivity.java -->
+  <gameActivityClassAdditions>
+    <insert>
+
+      public static native void nativeOnAndroidThunkJavaUpZip();
+
+
+      public void AndroidThunkJava_UnzipDPLibiary(String filePath, String assetName, String outputDirectory, String XMLPath, String txtFolerPath, String InputTXTValue) {
+
+      final String filePathTemp = filePath;
+      final String assetNameTemp = assetName;
+      final String outputDirectoryTemp = outputDirectory;
+      final String TXTFolerPath = txtFolerPath;
+      final String InputTXT = InputTXTValue;
+
+
+      try {
+      unZip(filePathTemp,outputDirectoryTemp, TXTFolerPath, InputTXT);
+      } catch (IOException e) {
+      e.printStackTrace();
+      }
+
+
+      }
+
+
+      public static void unZip(String filePath,String outputDirectory,String TXTFolerPath, String InputTXT) throws IOException {
+
+      File dir = new File(filePath);
+      File file = new File(outputDirectory);
+      if (!file.exists()) {
+      file.mkdir();
+      }
+      upZipFile(dir,  TXTFolerPath, InputTXT);
+      return;
+      }
+
+      public static int upZipFile(File zipFile,  String TXTFolerPath, String InputTXT) {
+      try {
+      ZipFile zfile = new ZipFile(zipFile);
+      Enumeration zList = zfile.entries();
+      ZipEntry ze = null;
+
+      byte[] buf = new byte[1024];
+
+      while (zList.hasMoreElements()) {
+      ze = (ZipEntry) zList.nextElement();
+
+      if (ze.isDirectory()) {
+
+      String dirstr = folderPath + ze.getName();
+      dirstr = new String(dirstr.getBytes("8859_1"), "GB2312");
+      File f = new File(dirstr);
+      f.mkdir();
+      continue;
+      }
+      OutputStream os = new BufferedOutputStream(new FileOutputStream(getRealFileName(folderPath, ze.getName())));
+      InputStream is = new BufferedInputStream(zfile.getInputStream(ze));
+      int readLen = 0;
+      while ((readLen = is.read(buf, 0, 1024)) != -1) {
+      os.write(buf, 0, readLen);
+      }
+      is.close();
+      os.close();
+      }
+      zfile.close();
+
+      GenergateFileTXT(TXTFolerPath, InputTXT);
+      } catch (Exception e) {
+      e.printStackTrace();
+      }
+      return 0;
+      }
+
+      public static File getRealFileName(String baseDir, String absFileName) {
+
+
+      String[] dirs = absFileName.split("\\\\");
+
+
+      String lastDir = baseDir;
+      if (dirs.length > 1) {
+
+      int i = 0;
+      while (i != dirs.length - 1) {
+
+      lastDir += (dirs[i] + "/");
+
+      File dir = new File(lastDir);
+      if (!dir.exists()) {
+      dir.mkdirs();
+      }
+      i++;
+      }
+      File ret = new File(lastDir, dirs[dirs.length - 1]);
+
+      return ret;
+      } else {
+
+      return new File(baseDir, absFileName);
+
+      }
+
+      }
+
+      public static String GenergateFileTXT(String TXTFolerPath, String InputTXT) throws IOException {
+
+
+      String TXTPath = "CmdCallBack.txt";
+
+
+      String TPPath = TXTFolerPath + TXTPath;
+      writeContent(TPPath, InputTXT, 0);
+
+      return "Gerengate TXT";
+
+
+      }
+
+      private static void writeContent(String pathName, String content, int type) {
+
+      try {
+      File txtFile = new File(pathName);
+      if (!txtFile.exists()) {
+      txtFile.getParentFile().mkdirs();
+      txtFile.createNewFile();
+      }
+
+      if (type == 0) {
+      RandomAccessFile raf = new RandomAccessFile(txtFile, "rwd");
+      raf.seek(txtFile.length());
+      raf.write(content.getBytes());
+      raf.close();
+      } else if (type == 1) {
+      print(pathName, content);
+      }
+      } catch (IOException e) {
+      e.printStackTrace();
+      }
+
+      }
+
+      public static void print(String path, String str) {
+      FileWriter fw = null;
+      BufferedWriter bw = null;
+      try {
+      fw = new FileWriter(path, true);
+      bw = new BufferedWriter(fw);
+      String myreadline = str;
+
+      bw.write(myreadline + "\n");
+      bw.newLine();
+      bw.flush();
+      bw.close();
+      fw.close();
+      } catch (IOException e) {
+      e.printStackTrace();
+      try {
+      bw.close();
+      fw.close();
+      } catch (IOException e1) {
+      }
+      }
+      }
+    </insert>
+   </gameActivityClassAdditions>
+
+
+  
+      <!-- optional updates applied to AndroidUnzip_APL.xml-->
+  <androidManifestUpdates>
+    <addPermission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <addPermission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+  <addPermission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  </androidManifestUpdates>
+</root>
